@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="定位," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="Core Location 定位方式iOS的定位分为三种：  GPS定位  通过GPS卫星获取定位信息，定位精度最高，但定位速度最慢，耗电量也最大。当用户在室内或地下车库等有遮挡的环境时，GPS定位的准确度就会大打折扣。   基站信号定位  每个手机基站都有一个标识符，iOS设备可以搜集周围所有收到信号的基站和它们的标识符，通过联网发送到苹果云端服务器，再由服务器根据这些基站的的位置信息查询并计算">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈Core-Location及其使用">
+<meta property="og:url" content="http://yoursite.com/2020/03/30/%E6%B5%85%E8%B0%88Core-Location%E5%8F%8A%E5%85%B6%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Learning Grocery">
+<meta property="og:description" content="Core Location 定位方式iOS的定位分为三种：  GPS定位  通过GPS卫星获取定位信息，定位精度最高，但定位速度最慢，耗电量也最大。当用户在室内或地下车库等有遮挡的环境时，GPS定位的准确度就会大打折扣。   基站信号定位  每个手机基站都有一个标识符，iOS设备可以搜集周围所有收到信号的基站和它们的标识符，通过联网发送到苹果云端服务器，再由服务器根据这些基站的的位置信息查询并计算">
+<meta property="og:image" content="https://i.loli.net/2020/02/24/BA5NyC1dguxb7Fm.png">
+<meta property="og:image" content="https://i.loli.net/2020/02/24/RjpWJ7P4MVZUotG.png">
+<meta property="og:image" content="https://i.loli.net/2020/02/21/BMEXh9Glfe37qTH.jpg">
+<meta property="og:image" content="https://i.loli.net/2020/02/21/xuTJ5zF2ZYaXLAi.png">
+<meta property="article:published_time" content="2020-03-30T09:56:17.000Z">
+<meta property="article:modified_time" content="2020-03-30T10:15:51.622Z">
+<meta property="article:author" content="denlay17">
+<meta property="article:tag" content="定位">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/02/24/BA5NyC1dguxb7Fm.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2020/03/30/浅谈Core-Location及其使用/"/>
+
+
+
+
+
+  <title>浅谈Core-Location及其使用 | Learning Grocery</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Learning Grocery</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/30/%E6%B5%85%E8%B0%88Core-Location%E5%8F%8A%E5%85%B6%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="denlay17">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Learning Grocery">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈Core-Location及其使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-03-30T17:56:17+08:00">
+                2020-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Core-Location"><a href="#Core-Location" class="headerlink" title="Core Location"></a>Core Location</h1><hr>
+<h2 id="定位方式"><a href="#定位方式" class="headerlink" title="定位方式"></a>定位方式</h2><p>iOS的定位分为三种：</p>
+<ul>
+<li><p>GPS定位</p>
+<blockquote>
+<p>通过GPS卫星获取定位信息，定位精度最高，但定位速度最慢，耗电量也最大。当用户在室内或地下车库等有遮挡的环境时，GPS定位的准确度就会大打折扣。</p>
+</blockquote>
+</li>
+<li><p>基站信号定位</p>
+<blockquote>
+<p>每个手机基站都有一个标识符，iOS设备可以搜集周围所有收到信号的基站和它们的标识符，通过联网发送到苹果云端服务器，再由服务器根据这些基站的的位置信息查询并计算出当前位置，然后返回给手机。因为基站信号辐射范围大，所以定位精度低，500m到几公里都是有可能的，但定位速度快，耗电量低。</p>
+</blockquote>
+</li>
+<li><p>Wi-Fi定位</p>
+<blockquote>
+<p>与基站定位原理相似, iOS设备通过无线网卡检测手机周围所有的WIFI热点（不需要连接上，只需要有信号就行），获得它们的MAC地址，然后到苹果云端服务器查询这个热点是否已经登记，登记过的话它的位置信息是多少，最后通过计算得到当前位置并返回给iOS设备。精度介于GPS定位和基站信号定位之间，经过测试，精度基本保持在30m到65m左右。</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>iOS设备采用的定位方式完全由系统决定</strong>。</p>
+<h2 id="CLLocationManager"><a href="#CLLocationManager" class="headerlink" title="CLLocationManager"></a>CLLocationManager</h2><p>CLLocationManager类是为APP配置位置相关事件和方向相关事件的类，使用该类的实例来配置方向事件和位置事件的参数，这些参数决定了何时启用或者停止事件的传递、事件何时响应，也可以使用该类的实例来检索最近的位置数据和方向数据。</p>
+<p>locationManager为位置相关的活动所提供以下支持：</p>
+<ul>
+<li>基于精确度来追踪用户当前位置的大范围或小范围的改变；</li>
+<li>监听不同的Region区域并在用户进入或离开这些Region区域时生成响应事件；</li>
+<li>通过指南针报告航向变化。</li>
+</ul>
+<h3 id="使用CLLocationManager"><a href="#使用CLLocationManager" class="headerlink" title="使用CLLocationManager"></a>使用CLLocationManager</h3><h4 id="申请定位权限"><a href="#申请定位权限" class="headerlink" title="申请定位权限"></a>申请定位权限</h4><p>iOS的APP在使用定位服务时，需要先向用户申请定位权限。开发者需要在info.plist中添加：</p>
+<p><img src="https://i.loli.net/2020/02/24/BA5NyC1dguxb7Fm.png" alt="权限1.png"></p>
+<p>如果想要APP在后台也能使用定位服务，还要获取后台定位的权限，设置如图所示：</p>
+<img src="https://i.loli.net/2020/02/24/RjpWJ7P4MVZUotG.png" alt="权限.png" style="zoom:70%;" />
+
+<h4 id="实例化并懒加载一个locationManager"><a href="#实例化并懒加载一个locationManager" class="headerlink" title="实例化并懒加载一个locationManager"></a>实例化并懒加载一个locationManager</h4><p>1、在.h文件中引用&lt;CoreLocation/CoreLocation.h&gt;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;CoreLocation&#x2F;CoreLocation.h&gt;</span><br></pre></td></tr></table></figure>
+
+<p>2、实例化一个CLLocationManager</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">@property (nonatomic, strong) CLLocationManager *locationManager;</span><br></pre></td></tr></table></figure>
+
+<p>3、懒加载locationManager</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">- (CLLocationManager *)locationManager &#123;</span><br><span class="line">    if (!_locationManager) &#123;</span><br><span class="line">        _locationManager &#x3D; [CLLocationManager new];</span><br><span class="line">        if ([_locationManager respondsToSelector:@selector(allowsBackgroundLocationUpdates)]) &#123;</span><br><span class="line">            &#x2F;&#x2F; APP在后台是否能使用定位</span><br><span class="line">            [_locationManager setAllowsBackgroundLocationUpdates:YES];</span><br><span class="line">        &#125;</span><br><span class="line">        if (@available(iOS 11.0, *)) &#123;</span><br><span class="line">            &#x2F;&#x2F; 是否改变导航栏样式</span><br><span class="line">            [_locationManager setShowsBackgroundLocationIndicator:NO];</span><br><span class="line">        &#125;</span><br><span class="line">      	&#x2F;&#x2F; 是否可以暂停位置更新</span><br><span class="line">        _locationManager.pausesLocationUpdatesAutomatically &#x3D; NO;</span><br><span class="line">      	&#x2F;&#x2F; 定位精度，精度越高，耗电量越大</span><br><span class="line">      	&#x2F;&#x2F; 如果项目开发时，只需获取用户的国家或城市等较大范围的位置信息，desiredAccuracy仅需设置为低精度即可，以达到省电的目的。若需要精确到街道甚至更加详细的位置，则需要高精度。</span><br><span class="line">        _locationManager.desiredAccuracy &#x3D; kCLLocationAccuracyNearestTenMeters;</span><br><span class="line">      	&#x2F;&#x2F; 位置更新最小移动距离</span><br><span class="line">        &#x2F;&#x2F; 与desiredAccuracy相同，若要求精确度不高，则可以将该值设置为较大的数值</span><br><span class="line">        _locationManager.distanceFilter &#x3D; kXBDistanceFilterTwentyMeters;      </span><br><span class="line">        _locationManager.delegate &#x3D; self;</span><br><span class="line">    &#125;</span><br><span class="line">    return _locationManager;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="常用方法和代理方法"><a href="#常用方法和代理方法" class="headerlink" title="常用方法和代理方法"></a>常用方法和代理方法</h4><p>1、在开始使用定位服务之前，需要先注册APP的定位权限</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">	&#x2F;&#x2F; 获取当前定位权限</span><br><span class="line">	CLAuthorizationStatus status &#x3D; [CLLocationManager authorizationStatus];</span><br><span class="line">	&#x2F;&#x2F;根据现有权限进行操作</span><br><span class="line">	switch (status) &#123;</span><br><span class="line">        case kCLAuthorizationStatusAuthorizedWhenInUse:&#x2F;&#x2F;使用APP期间定位</span><br><span class="line">        case kCLAuthorizationStatusAuthorizedAlways:&#x2F;&#x2F;一直定位</span><br><span class="line">            [self.locationManager startUpdatingLocation];</span><br><span class="line">            break;</span><br><span class="line">        case kCLAuthorizationStatusDenied:</span><br><span class="line">            &#x2F;&#x2F; 用户拒绝使用定位，可在此引导用户开启</span><br><span class="line">            NSLog(@&quot;用户拒绝使用定位&quot;);</span><br><span class="line">            break;</span><br><span class="line">        case kCLAuthorizationStatusRestricted:</span><br><span class="line">            &#x2F;&#x2F; 权限受限，可引导用户开启</span><br><span class="line">            break;</span><br><span class="line">        case kCLAuthorizationStatusNotDetermined:</span><br><span class="line">            &#x2F;&#x2F; 未选择，一般是首次启动，根据需要发起申请</span><br><span class="line">      			&#x2F;&#x2F; 向系统请求在使用APP时的定位服务权限</span><br><span class="line">      			[self.locationManager requestWhenInUseAuthorization];</span><br><span class="line">						&#x2F;&#x2F; 向系统请求定位权限，不论APP在前台还是在后台</span><br><span class="line">						[self.locationManager requestAlwaysAuthorization];</span><br><span class="line">            break;</span><br><span class="line">        default:</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>当用户更改了APP的定位权限时，locationManager会调用代理方法<strong>-locationManager:didChangeAuthorizationStatus:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">- (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status&#123;</span><br><span class="line">  switch (status) &#123;</span><br><span class="line">        case kCLAuthorizationStatusAuthorizedWhenInUse:&#x2F;&#x2F;使用APP期间定位</span><br><span class="line">        case kCLAuthorizationStatusAuthorizedAlways:&#x2F;&#x2F;一直定位</span><br><span class="line">            [manager startUpdatingLocation];</span><br><span class="line">            break;</span><br><span class="line">        case kCLAuthorizationStatusDenied:</span><br><span class="line">            &#x2F;&#x2F; 用户拒绝使用定位，可在此引导用户开启</span><br><span class="line">            break;</span><br><span class="line">        case kCLAuthorizationStatusRestricted:</span><br><span class="line">            &#x2F;&#x2F; 权限受限，可引导用户开启</span><br><span class="line">            break;</span><br><span class="line">        case kCLAuthorizationStatusNotDetermined:</span><br><span class="line">            &#x2F;&#x2F; 未选择，在代理方法里，一般不会有这个状态，如果有，再次发起申请</span><br><span class="line">            break;</span><br><span class="line">        default:</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2、在适当位置添加开始或结束定位服务，开始或结束重大位置更新监测等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">  &#x2F;&#x2F;开始定位</span><br><span class="line">  [self.locationManager startUpdatingLocation];</span><br><span class="line">  &#x2F;&#x2F;结束定位</span><br><span class="line">  [self.locationManager stopUpdatingLocation];</span><br><span class="line">  &#x2F;&#x2F;开始重大位置更新监测</span><br><span class="line">  [self.locationManager startMonitoringSignificantLocationChanges];</span><br><span class="line">  &#x2F;&#x2F;结束重大位置更新监测</span><br><span class="line">  [self.locationManager stopMonitoringSignificantLocationChanges]</span><br><span class="line"> ...</span><br></pre></td></tr></table></figure>
+
+<p>3、当用户移动了之前设置的距离（<strong>_locationManager.distanceFilter</strong>）后，locationManager会通知代理有了新的位置，然后在<strong>-locationManager:didUpdateLocations:</strong>中对新的位置信息进行下一步操作。新的位置信息通常是一个集合，一般使用该集合的最后一项作为最新位置。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 通知代理有新的可用位置值，即当位置管理获取到新的位置后，在此进行进一步操作</span><br><span class="line">- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray&lt;CLLocation *&gt; *)locations&#123;</span><br><span class="line">  CLLocation *location &#x3D; location.lastObject;</span><br><span class="line">  NSLog(@&quot;位置更新,精度:%f,当前位置:经度:%f,纬度:%f&quot;, location.horizontalAccuracy, location.coordinate.latitude,location.coordinate.longitude);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 当locationManager无法检测到位置值时通知代理</span><br><span class="line">- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error&#123;</span><br><span class="line">  NSLog(@&quot;定位服务错误&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="CLRegion"><a href="#CLRegion" class="headerlink" title="CLRegion"></a>CLRegion</h2><p>CLRegion是表示可监测区域的类。以一个具体的位置值(CLLocationCoordinate2D)为中心绘制的圆形区域。每个区域都有独一无二的identifier，如果出现了重复的identifier，新的Region会将旧Region替换掉。</p>
+<p>添加的监测区域Region是系统级的，除非手动注销或设备关机，注册的Region将一直存在。所以为了节省设备资源，每个APP都有Region的数量限制，当Region的数量超过20个后，系统将只会对最新的20个Region进行监测。</p>
+<p>1、添加一个监测区域(Region)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; 定义一个CLLocationCoordinate2D作为区域的圆心</span><br><span class="line">CLLocationCoordinate2D center;</span><br><span class="line">center.latitude  &#x3D; 22;</span><br><span class="line">center.longitude &#x3D; 11;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 使用CLCircularRegion创建一个圆形区域，半径为50米</span><br><span class="line">&#x2F;&#x2F; 初始化时使用CLCircularRegion</span><br><span class="line">CLRegion *region1 &#x3D; [[CLCircularRegion alloc] initWithCenter:center </span><br><span class="line">                     radius:50 identifier:@&quot;region1&quot;];</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; 开始监听区域</span><br><span class="line">[self.locationManager startMonitoringForRegion:region1];</span><br></pre></td></tr></table></figure>
+
+<p>2、当用户进入某个监测区域时，locationManager会通知代理，然后在<strong>-locationManager:didEnterRegion:</strong>中进行操作：</p>
+<p><img src="https://i.loli.net/2020/02/21/BMEXh9Glfe37qTH.jpg" alt="enterRegion.jpg"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- (void)locationManager:(CLLocationManager *)manager didEnterRegion:(CLRegion *)region</span><br><span class="line">&#123;</span><br><span class="line">  if([region.identifier isEqualToString:@&quot;region1&quot;]) &#123;</span><br><span class="line">    NSLog(@&quot;进入监测区域region1&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3、当用户离开某个监测区域时，locationManager同样会通知代理，然后在<strong>-locationManager:didExitRegion:</strong>中进行操作：</p>
+<p><img src="https://i.loli.net/2020/02/21/xuTJ5zF2ZYaXLAi.png" alt="exitRegion.png"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">- (void)locationManager:(CLLocationManager *)manager didExitRegion:(CLRegion *)region</span><br><span class="line">&#123;</span><br><span class="line">  if([region.identifier isEqualToString:@&quot;region1&quot;]) &#123;</span><br><span class="line">    NSLog(@&quot;离开监测区域region1&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4、当locationManager调用<strong>-requestStateForRegion:</strong>方法时，会通知代理，然后在<strong>-locationManager:didDetermineState: forRegion:</strong>中返回用户当前位置与监测区域Region的位置关系</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">  &#x2F;&#x2F; 获取到指定region（根据唯一值identifier）</span><br><span class="line">  [self.locationManager.monitoredRegions enumerateObjectsUsingBlock:^(__kindof CLRegion * _Nonnull obj, BOOL * _Nonnull stop) &#123;</span><br><span class="line">    if([obj.identifier isEqualToString:@&quot;region1&quot;])&#123;</span><br><span class="line">      [self.locationManager requestStateForRegion:obj];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;];</span><br><span class="line">...</span><br><span class="line">- (void)locationManager:(CLLocationManager *)manager didDetermineState:(CLRegionState)state forRegion:(CLRegion *)region&#123;</span><br><span class="line">  if([region.identifier isEqualToString:@&quot;region1&quot;])&#123;</span><br><span class="line">    if(state &#x3D;&#x3D; CLRegionStateUnknown)&#123;</span><br><span class="line">      NSLog(@&quot;状态未知&quot;);</span><br><span class="line">    &#125;else if(state &#x3D;&#x3D; CLRegionStateInside)&#123;</span><br><span class="line">      NSLog(@&quot;用户在region1圈内&quot;)</span><br><span class="line">    &#125;else if(state &#x3D;&#x3D; CLRegionStateOutside)&#123;</span><br><span class="line">      NSLog(@&quot;用户在region1圈外&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="一些注意的点"><a href="#一些注意的点" class="headerlink" title="一些注意的点"></a>一些注意的点</h2><p>1、当用户越过Region边界时（不论是进入监测区域还是离开监测区域），如果APP在未启动状态，系统会将APP启动，所以如果明确了不需要继续使用定位服务，应使用<strong>-stopUpdatingLocation</strong> 手动停止定位服务以及使用以下代码注销监测区域：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[self.locationManager.monitoredRegions enumerateObjectsUsingBlock:^(__kindof CLRegion * _Nonnull obj, BOOL * _Nonnull stop) &#123;</span><br><span class="line">  if([obj.identifier isEqualToString:@&quot;region1&quot;])&#123;</span><br><span class="line">    [self.locationManager stopMonitoringForRegion:obj];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<p>2、获取到的location精确度与用户手机蜂窝信号、Wi-Fi信号以及GPS信号的强弱都有联系。即使用户的真实地理位置没有改变，也会出现由于定位精度低，设备获取到的用户位置发生改变的情况。所以在获取定位位置时，可以在<strong>-locationManager:didUpdateLocations:</strong>中对获取到的位置信息进行过滤，以获得最佳位置信息。</p>
+<p>3、在添加监测区域Region的时候，有时由于点2所述情况，用户的位置会在短时间内发生变化，如果此时用户位置已经在Region圈内，那么将不会触发<strong>-locationManager:didEnterRegion:</strong>，即没有入圈的动作。同样的，如果用户位置已在圈外，也不会触发出圈动作。如果在实际的项目开发中，需要靠出入圈唤醒APP以及其他更多的操作，为避免上述问题，通常会使用多个同心圆的监测区域，同时进行监测。监测区域Region的半径也不宜过小，根据官方文档以及个人开发经验，最外层的Region半径最好不低于200m。</p>
+<h3 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h3><p>1、<a href="https://developer.apple.com/documentation/corelocation?language=objc" target="_blank" rel="noopener">苹果开发者文档-Core Location</a></p>
+<p>2、<a href="https://blog.csdn.net/u011146511/article/details/54315759" target="_blank" rel="noopener">CSDN-iOS CLRegion监听区域</a></p>
+<p>3、<a href="https://www.jianshu.com/p/4e0ce298117b" target="_blank" rel="noopener">简书-iOS定位的3种方式(方式)</a></p>
+<p>4、<a href="https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/LocationAwarenessPG/RegionMonitoring/RegionMonitoring.html#//apple_ref/doc/uid/TP40009497-CH9" target="_blank" rel="noopener">苹果开发者文档-Region Monitoring and iBeacon</a></p>
+<p>5、一些个人Demo</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/%E5%AE%9A%E4%BD%8D/" rel="tag"># 定位</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/30/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/30/%E5%85%B3%E4%BA%8ETableView-2-0-%E5%85%B7%E4%BD%93%E4%BD%BF%E7%94%A8/" rel="prev" title="关于TableView 2.0 - 具体使用">
+                关于TableView 2.0 - 具体使用 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avatar.jpeg"
+               alt="denlay17" />
+          <p class="site-author-name" itemprop="name">denlay17</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Core-Location"><span class="nav-number">1.</span> <span class="nav-text">Core Location</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定位方式"><span class="nav-number">1.1.</span> <span class="nav-text">定位方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CLLocationManager"><span class="nav-number">1.2.</span> <span class="nav-text">CLLocationManager</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用CLLocationManager"><span class="nav-number">1.2.1.</span> <span class="nav-text">使用CLLocationManager</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#申请定位权限"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">申请定位权限</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#实例化并懒加载一个locationManager"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">实例化并懒加载一个locationManager</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#常用方法和代理方法"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">常用方法和代理方法</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CLRegion"><span class="nav-number">1.3.</span> <span class="nav-text">CLRegion</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一些注意的点"><span class="nav-number">1.4.</span> <span class="nav-text">一些注意的点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文档"><span class="nav-number">1.4.1.</span> <span class="nav-text">参考文档</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">denlay17</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io" target="_blank" rel="noopener">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next" target="_blank" rel="noopener">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.2"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
